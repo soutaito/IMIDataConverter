@@ -7,7 +7,7 @@ class Array2xml
 	private $rootName = 'root';
 	private $rootAttrs = array();
 	private $rootSelf = FALSE;
-	private $emelentsAttrs = array();
+	private $elementsAttrs = array();
 	private $CDataKeys = array();
 	private $newLine = "\n";
 	private $newTab = "\t";
@@ -156,9 +156,9 @@ class Array2xml
 	 * @param    array
 	 * @return    void
 	 */
-	public function setElementsAttrs($emelentsAttrs)
+	public function setElementsAttrs($elementsAttrs)
 	{
-		$this->emelentsAttrs = (array)$emelentsAttrs;
+		$this->elementsAttrs = (array)$elementsAttrs;
 	}
 
 	// --------------------------------------------------------------------
@@ -260,6 +260,7 @@ class Array2xml
 		foreach ($data as $key => $val)
 		{
             unset($data[$key]);
+			$attrKey = false;
 			if (is_numeric($key) && $this->defaultTagName !== FALSE)
             {
                 $key = $this->defaultTagName;
@@ -284,20 +285,19 @@ class Array2xml
 				}
 				else
 				{
-					//$key = $this->numericElement . $key;
+					$attrKey = $key;
 					$key = $this->numericElement ;
 				}
 			}
-
 			if ($key !== FALSE)
 			{
 				$this->writer->text(str_repeat($this->newTab, $tabs_count));
 
 				$this->writer->startElement($key);
 
-				if (isset($this->emelentsAttrs[$key]))
+				if ($attrKey !== FALSE && isset($this->elementsAttrs[$attrKey]))
 				{
-					foreach ($this->emelentsAttrs[$key] as $elementAttrName => $elementAttrText)
+					foreach ($this->elementsAttrs[$attrKey] as $elementAttrName => $elementAttrText)
 					{
 						$this->writer->startAttribute($elementAttrName);
 						$this->writer->text($elementAttrText);

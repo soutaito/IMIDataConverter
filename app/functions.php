@@ -311,7 +311,6 @@ class XMLConverter {
 		$array2xml->setRootName('items');
 		$array2xml->setNumericElement('item');
 		$array2xml->setSkipNumeric(false);
-		$array2xml->setElementsAttrs(array('item' => array('id' => '')));
 		$namespaces = array(
 			'xmlns' => "http://example.com/ns/#",
 			'xmlns:ic' => "http://imi.ipa.go.jp/ns/core/2",
@@ -319,6 +318,7 @@ class XMLConverter {
 			'xmlns:xsi' => "http://www.w3.org/2001/XMLSchema-instance",
 			'xsi:noNamespaceSchemaLocation' => "./dataSchema.xsd",
 		);
+		$id = array();
 		$output = array();
 		foreach ( $this->items as $item ) {
 			if ( $this->checkHeaderSkip() ) {
@@ -334,8 +334,10 @@ class XMLConverter {
 			if(!$not_empty){
 				continue;
 			}
+			$id[] = array('id' => $this->project['eg:vocabulary']['eg:uri'] . $this->getSubject($item));
 			$output[] = $this->setPropertyRecursive( $item, $this->property );
 		}
+		$array2xml->setElementsAttrs($id);
 		$array2xml->setRootAttrs($namespaces);
 		return $array2xml->convert($output);
 	}
