@@ -218,19 +218,20 @@ class XMLConverter {
 				$output[ $val["eg:predicate"] ]
 					= $this->setPropertyRecursive( $item, $val["eg:additional"] );
 			} elseif ( isset( $val['eg:targetType'] ) ) {
-				switch ( $this->definitionType ) {
+				switch ( $val['eg:targetType'] ) {
 					case 'row':
-						$index                          = $this->getIndex( $val['eg:targetCells'],
-							'c' );
-						$output[ $val["eg:predicate"] ] = $item[ $index ];
-						break;
-					case 'column':
 						$index                          = $this->getIndex( $val['eg:targetCells'],
 							'r' );
 						$output[ $val["eg:predicate"] ] = $item[ $index ];
 						break;
+					case 'column':
+						$index                          = $this->getIndex( $val['eg:targetCells'],
+							'c' );
+						$output[ $val["eg:predicate"] ] = $item[ $index ];
+						break;
 					case 'constant':
-						$output[ $val["eg:predicate"] ] = $val;
+					case 'uri':
+						$output[ $val["eg:predicate"] ] = $val['eg:targetTypeText'];
 						break;
 					case 'increment':
 						$output[ $val["eg:predicate"] ] = $this->count;
@@ -393,15 +394,15 @@ class RDFConverter extends XMLConverter{
 						'type' => 'bnode',
 						'value' => $val
 					);
-				}else{
+				}elseif ( isset( $val['eg:targetType'] ) ) {
 					if($isBlank){
 						$o = &$output[$key];
 					}else{
 						$o = &$output[$subject][$key];
 					}
-					switch($this->definitionType){
+					switch($val['eg:targetType']){
 						case 'row':
-							$index = $this->getIndex($val['eg:targetCells'], 'c');
+							$index = $this->getIndex($val['eg:targetCells'], 'r');
 							$o[] = array(
 								'type' => 'literal',
 								'lang' => 'ja',
@@ -409,7 +410,7 @@ class RDFConverter extends XMLConverter{
 							);
 							break;
 						case 'column':
-							$index = $this->getIndex($val['eg:targetCells'], 'r');
+							$index = $this->getIndex($val['eg:targetCells'], 'c');
 							$o[] = array(
 								'type' => 'literal',
 								'lang' => 'ja',
@@ -420,7 +421,13 @@ class RDFConverter extends XMLConverter{
 							$o[] = array(
 								'type' => 'literal',
 								'lang' => 'ja',
-								'value' => $val
+								'value' => $val['eg:targetTypeText']
+							);
+							break;
+						case 'uri':
+							$o[] = array(
+								'type' => 'uri',
+								'value' => $val['eg:targetTypeText']
 							);
 							break;
 						case 'increment':
