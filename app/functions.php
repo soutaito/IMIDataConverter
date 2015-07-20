@@ -147,6 +147,7 @@ function convertRdfPHP($myArray, $value){
 class XMLConverter {
 
 	public $count = 0;
+	public $headerIndex = -1;
 	public $items = array();
 	public $property = array();
 	public $definitionType = '';
@@ -163,6 +164,7 @@ class XMLConverter {
 		$this->items          = $_SESSION['sheetData'];
 		$this->definitionType = $this->project['eg:definitionType'];
 		$this->property       = $this->project['eg:property'];
+		$this->headerIndex = $this->getHeaderIndex();
 	}
 
 	public function internalAPI( $prop, $val ) {
@@ -281,6 +283,28 @@ class XMLConverter {
 		return (int) str_replace( $prefix, '', $val );
 	}
 
+	public function getHeaderIndex() {
+		if(isset($this->project['eg:headerIndex'])){
+			$headerIndex = $this->project['eg:headerIndex'];
+		}else{
+			$headerIndex = -1;
+		}
+		switch($this->project['eg:definitionType']) {
+			case 'row':
+				$headerIndex = (int)str_replace('r', '', $headerIndex);
+				break;
+			case 'column':
+				$headerIndex = (int)str_replace('c', '', $headerIndex);
+				break;
+		}
+		return $headerIndex;
+	}
+
+	public function checkHeaderSkip(){
+		$this->count ++;
+		return ( ($this->headerIndex + 1) >= $this->count ) ;
+	}
+
 	public function getXML() {
 		$array2xml = new Array2xml();
 		$array2xml->setRootName('items');
@@ -295,23 +319,8 @@ class XMLConverter {
 			'xsi:noNamespaceSchemaLocation' => "./dataSchema.xsd",
 		);
 		$output = array();
-		$definitionType = $this->project['eg:definitionType'];
-		if(isset($this->project['eg:headerIndex'])){
-			$headerIndex = $this->project['eg:headerIndex'];
-		}else{
-			$headerIndex = -1;
-		}
-		switch($definitionType) {
-			case 'row':
-				$headerIndex = (int)str_replace('r', '', $headerIndex);
-				break;
-			case 'column':
-				$headerIndex = (int)str_replace('c', '', $headerIndex);
-				break;
-		}
 		foreach ( $this->items as $item ) {
-			$this->count ++;
-			if ( ($headerIndex + 1) >= $this->count ) {
+			if ( $this->checkHeaderSkip() ) {
 				continue;
 			}
 			$not_empty = false;
@@ -435,6 +444,9 @@ class RDFConverter extends XMLConverter{
 		$this->format = $format;
 		if(is_array($this->items) && $this->items !== array()){
 			foreach($this->items as $item):
+				if ( $this->checkHeaderSkip() ) {
+					continue;
+				}
 				$node = $this->setPropertyRecursive($item, $this->property);
 				$this->graph->parse($node, 'guess');
 			endforeach;
