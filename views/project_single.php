@@ -93,7 +93,7 @@
 				<div class="btn-group btn-block download">
 					<button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
 						<span class="glyphicon glyphicon-download-alt"></span>
-						ダウンロード
+						入力フォームのダウンロード
 					</button>
 					<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
 						<li role="presentation"><a role="menuitem" tabindex="-1" href="<?php echo $data['static_path']; ?>project/download/<?php echo $data['project']['_id']; ?>?type=csv">CSV</a></li>

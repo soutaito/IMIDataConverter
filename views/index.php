@@ -16,7 +16,7 @@
 					<ul class="nav navbar-nav filter_menu">
 						<li class="right">
 							<a id="drop_catselect" class="dropdown-toggle" data-toggle="dropdown" href="#">
-								タグを選択
+								タグで絞り込み
 								<span class="caret"></span>
 							</a>
 							<ul class="dropdown-menu" aria-labelledby="drop_catselect">
@@ -27,7 +27,7 @@
 						</li>
 						<li class="right">
 							<a id="drop_userselect" class="dropdown-toggle" data-toggle="dropdown" href="#">
-								ユーザーを選択
+								作成者で絞り込み
 								<span class="caret"></span>
 							</a>
 							<ul class="dropdown-menu" aria-labelledby="drop_userselect">
@@ -67,7 +67,7 @@
 						endif;
 						if(!empty($data['license']) && is_string($data['license'])):
 							?>
-							<h2 class="filter">ライセンス「<?php echo htmlspecialchars($data['license'], ENT_QUOTES, 'UTF-8'); ?>」で絞り込み結果</h2>
+							<h2 class="filter">ライセンス「<?php echo htmlspecialchars($data['license'], ENT_QUOTES, 'UTF-8'); ?>」での絞り込み結果</h2>
 							<?php
 						endif;
 						?>
@@ -135,7 +135,7 @@
 							<div class="btn-group btn-block download">
 								<button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
 									<span class="glyphicon glyphicon-download-alt"></span>
-									ダウンロード
+									入力フォームのダウンロード
 								</button>
 								<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
 									<li role="presentation"><a role="menuitem" tabindex="-1" href="<?php echo $data['static_path']; ?>project/download/<?php echo $value['_id']; ?>?type=csv">CSV</a></li>
