@@ -152,6 +152,9 @@ $app->group('/project', function () use ($app) {
 		}else if(mb_strlen($post['rdfs:label']) > 100){
 			$is_error = true;
 			$app->flash('error', 'プロジェクトタイトルが長すぎます');
+		}else if(preg_match('/(\<|\>|\&|\"|\')/',$post['rdfs:label']) === 1){
+			$is_error = true;
+			$app->flash('error', '不正な文字が使用されています');
 		}
 		if($is_error){
 			$app->redirect($app->config('static_path') . 'project/' . $_SESSION['action']);

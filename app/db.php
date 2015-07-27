@@ -71,6 +71,9 @@ function saveProject($post){
 				}else if(mb_strlen($v) >= 100){
 					$has_error = true;
 					$error_message[] = 'タイトルが長すぎます';
+				}else if(preg_match('/(\<|\>|\&|\"|\')/',$v) === 1){
+					$has_error = true;
+					$error_message[] = '不正な文字が使用されています';
 				}else{
 					$_SESSION['project']['eg:subject'] = $v ;
 				}
@@ -85,6 +88,9 @@ function saveProject($post){
 				}else if(mb_strlen($v) >= 500){
 					$has_error = true;
 					$error_message[] = '説明文が長すぎます';
+				}else if(preg_match('/(\<|\>|\&|\"|\')/',$v) === 1){
+					$has_error = true;
+					$error_message[] = '説明文に不正な文字列が含まれています';
 				}else{
 					$_SESSION['project']['dct:description'] = $v;
 				}
