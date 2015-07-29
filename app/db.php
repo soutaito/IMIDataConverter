@@ -73,7 +73,7 @@ function saveProject($post){
 					$error_message[] = 'タイトルが長すぎます';
 				}else if(preg_match('/(\<|\>|\&|\"|\')/',$v) === 1){
 					$has_error = true;
-					$error_message[] = '不正な文字が使用されています';
+					$error_message[] = 'タイトルに<,>,&,\',",は使用できません';
 				}else{
 					$_SESSION['project']['eg:subject'] = $v ;
 				}
@@ -90,7 +90,7 @@ function saveProject($post){
 					$error_message[] = '説明文が長すぎます';
 				}else if(preg_match('/(\<|\>|\&|\"|\')/',$v) === 1){
 					$has_error = true;
-					$error_message[] = '説明文に不正な文字列が含まれています';
+					$error_message[] = '説明文に<,>,&,\',",は使用できません';
 				}else{
 					$_SESSION['project']['dct:description'] = $v;
 				}
