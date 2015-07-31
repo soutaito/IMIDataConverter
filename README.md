@@ -46,7 +46,7 @@ CSVやMicrosoft Excel等の表形式データを[共通語彙基盤](http://imi.
 ```
 
 ## Docs
-・ インストールマニュアル
+・ [インストールマニュアル](./Install_Manual.md)
 
 ## License
 本ツールのソースコードは[MIT License](http://opensource.org/licenses/MIT)の下に提供されます。
