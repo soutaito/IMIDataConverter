@@ -1,0 +1,10 @@
+{
+	"require": {
+		"slim/slim": "*.*",
+		"phpoffice/phpexcel": "dev-master",
+		"easyrdf/easyrdf": "*",
+	  	"ml/json-ld": "dev-master",
+		"petebrowne/slim-layout-view": "0.3.*",
+		"slim/logger": "0.1.*"
+	}
+}
