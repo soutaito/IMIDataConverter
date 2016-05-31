@@ -104,7 +104,12 @@ function convertURI($value){
 	foreach($prefix as $key => $val){
 		if($key == $value[0]){
 			$value[0] = $val['url'];
-			return implode('/', $value);
+			if(mb_substr($value[0], -1) === '#'){
+				$delimiter = '';
+			}else{
+				$delimiter = '/';
+			}
+			return implode($delimiter, $value);
 		}
 	}
 }
