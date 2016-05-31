@@ -36,7 +36,6 @@ function downloadZip($format = null){
 		$app->flash('error', '指定された出力形式が不正です。');
 		throw new RuntimeException('指定された出力形式が不正です。');
 	}
-
 	$zip = new ZipArchive();
 	$zipFileName = 'data.zip';
 	$zipFilePath = $app->config( 'uploadPath' ) ;
@@ -48,7 +47,7 @@ function downloadZip($format = null){
 	}
 
 	if($format == 'xml'){
-		$zip->addFromString('dataSchema.xsd' , getSchema());
+		$zip->addFromString('schema.xsd' , getSchema());
 		$xml = new XMLConverter();
 		$output = $xml->getXML();
 	}else{
@@ -57,7 +56,8 @@ function downloadZip($format = null){
 		$output = $rdf->output();
 	}
 	$zip->addFromString('convertedData.'  . $extension[$format] , $output);
-	$zip->addFromString('dataTemplate.xml' , getTemplateXML());
+	$zip->addFromString('header.xml' , dmdHeaderXML());
+	$zip->addFromString('header.ttl' , dmdHeaderRDF());
 	$zip->addFromString('mapping.json' , getMapping());
 
 	$zip->close();
@@ -334,7 +334,7 @@ class XMLConverter {
 			'xmlns:ic' => "http://imi.ipa.go.jp/ns/core/2",
 			'xmlns:dct' => "http://purl.org/dc/terms/",
 			'xmlns:xsi' => "http://www.w3.org/2001/XMLSchema-instance",
-			'xsi:noNamespaceSchemaLocation' => "./dataSchema.xsd",
+			'xsi:noNamespaceSchemaLocation' => "./schema.xsd",
 		);
 		$id = array();
 		$output = array();
@@ -597,53 +597,108 @@ function getSchema(){
 	return $xsd;
 }
 
-function getTemplateXML(){
+function dmdHeaderXML(){
 	$app = Slim\Slim::getInstance();
 	ob_start();
 	$project = $_SESSION['project'];
 	$created = getYmd($project['dct:created']);
 	if(!empty($project['dct:license'])){
-		$license = getLincenseURI($project['dct:license'], $app->config('tool_name'));
+		$license_uri = getLincenseURI($project['dct:license'], $app->config('license'));
+		$license_name = $project['dct:license'];
 	}else{
-		$license = '';
+		$license_uri = '';
+		$license_name = '';
 	}
 	echo '<?xml version="1.0" encoding="utf-8"?>';
 	?>
-	<DataTemplate
-		xmlns="http://example.com/#"
-		xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-		xmlns:ic="http://imi.ipa.go.jp/ns/core/2"
-		xmlns:dct="http://purl.org/dc/terms/"
-		xmlns:eg="http://example.com/ns/example#"
-		>
-		<dct:title><?php echo htmlspecialchars($project['rdfs:label']); ?></dct:title>
-		<dct:creator><?php echo htmlspecialchars($project['dct:creator']); ?></dct:creator>
-		<dct:license><?php echo $license; ?></dct:license>
-		<dct:created><?php echo $created; ?></dct:created>
-		<dct:description><?php if(!empty($project['dct:description'])){ echo htmlspecialchars($project['dct:description']); }?></dct:description>
-		<eg:toolName><?php echo htmlspecialchars($app->config('tool_name')); ?></eg:toolName>
-		<eg:toolVersion><?php echo htmlspecialchars($app->config('tool_version')); ?></eg:toolVersion>
-		<eg:templateVersion><?php echo htmlspecialchars($app->config('template_version')); ?></eg:templateVersion>
-		<?
-
-		if(isset($project['eg:tag'])){
-			iterateProperty($project['eg:tag'], 'eg:tag');
-		}
-		if(isset($project['eg:keyword'])){
-			iterateProperty($project['eg:keyword'], 'eg:keyword');
-		}
-		if(isset($project['eg:headerLabel'])){
-			iterateProperty($project['eg:headerLabel'], 'eg:headerLabel');
-		}
-		if(isset($_SESSION['format']) && $_SESSION['format'] == 'xml'):
-			?>
-			<Content type="schema" file="./dataSchema.xsd" />
-		<?php endif; ?>
-	</DataTemplate>
+<DMD xmlns="http://imi.ipa.go.jp/dmd/ns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://imi.ipa.go.jp/dmd/ns">
+	<URI>http://example.org/imins/<?php echo $project['_id']; ?></URI>
+	<Name xml:lang="ja"><?php echo htmlspecialchars($project['rdfs:label']); ?></Name>
+	<CreationDate><?php echo $created; ?></CreationDate>
+	<Description xml:lang="ja"><?php if(!empty($project['dct:description'])){ echo htmlspecialchars($project['dct:description']); }?></Description>
+	<Publisher>
+		<Name xml:lang="ja"><?php echo htmlspecialchars($project['dct:creator']); ?></Name>
+	</Publisher>
+	<License>
+		<URI><?php echo $license_uri; ?></URI>
+		<Name><?php echo $license_name; ?></Name>
+	</License>
+	<DefaultCharset>UTF-8</DefaultCharset>
+</DMD>
 	<?php
 	$xml = ob_get_contents();
 	ob_end_clean();
 	return $xml;
+}
+
+function dmdHeaderRDF(){
+	$app = Slim\Slim::getInstance();
+	ob_start();
+	$project = $_SESSION['project'];
+	$format = $_SESSION['format'];
+	$mimeType = array(
+		'xml' => 'text/xml',
+		'rdfxml' => 'application/rdf+xml',
+		'jsonld' => 'application/ld+json',
+		'turtle' => 'text/turtle',
+		'ntriples' => 'application/n-triples'
+	);
+	if(!array_key_exists($format, $mimeType)){
+		$app->flash('error', '指定された出力形式が不正です。');
+		throw new RuntimeException('指定された出力形式が不正です。');
+	}
+
+	$created = getYmd($project['dct:created']);
+	if(!empty($project['dct:license'])){
+		$license_uri = getLincenseURI($project['dct:license'], $app->config('license'));
+	}else{
+		$license_uri = '';
+	}
+	$dataName = 'convertedData.' . $format;
+	$dataType = $mimeType[$format];
+	?>
+@prefix owl: <http://www.w3.org/2002/07/owl#>.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix dcterms: <http://purl.org/dc/terms/>.
+@prefix adms: <http://www.w3.org/ns/adms#>.
+@prefix dcat: <http://www.w3.org/ns/dcat#>.
+@prefix dmd: <http://imi.ipa.go.jp/ns/dmd#>.
+
+<http://example.org/imins/<?php echo $project['_id']; ?>> a adms:Asset ;
+dcterms:type dmd:DataModelDescription ;
+dcterms:issued "<?php echo $created; ?>"^^xsd:date ;
+dcterms:description "<?php if(!empty($project['dct:description'])){ echo htmlspecialchars($project['dct:description']); }?>"@ja ;
+dcterms:publisher "<?php echo htmlspecialchars($project['dct:creator']); ?>"@ja ;
+dcterms:title "<?php echo htmlspecialchars($project['rdfs:label']); ?>"@ja ;
+
+dcterms:license <<?php echo $license_uri; ?>> ;
+dcat:distribution <header.ttl> ;
+dcat:distribution <header.xml> ;
+dcat:distribution <schema.xsd> ;
+dcat:distribution <mapping.json> ;
+dcat:distribution <<?php echo $dataName; ?>> .
+
+<header.ttl> a adms:AssetDistribution ;
+	dcat:mediaType "text/turtle" .
+
+<header.xml> a adms:AssetDistribution ;
+	dcat:mediaType "text/xml" .
+
+<schema.xsd> a adms:AssetDistribution ;
+	dcat:mediaType "text/xml" .
+
+<mapping.json> a adms:AssetDistribution ;
+	dcat:mediaType "application.json" .
+
+<<?php echo $dataName; ?>> a adms:AssetDistribution ;
+	dcat:mediaType "<?php echo $dataType; ?>" .
+
+	<?php
+	$rdf = ob_get_contents();
+	ob_end_clean();
+	return $rdf;
 }
 
 function getMapping(){
