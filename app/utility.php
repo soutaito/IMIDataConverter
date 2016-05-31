@@ -103,7 +103,7 @@ function convertURI($value){
 	$value = explode(':', $value);
 	foreach($prefix as $key => $val){
 		if($key == $value[0]){
-			$value[0] = $val['url'];
+			$value[0] = $val['namespace'];
 			if(mb_substr($value[0], -1) === '#'){
 				$delimiter = '';
 			}else{

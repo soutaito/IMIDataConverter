@@ -25,7 +25,7 @@ $config = array(
 		'template_version' => '1.0',
 		'prefix' => array(
 			'ic' => array(
-				'name' => '共通語彙基盤 コア語彙 2（バージョン2.2）',
+				'name' => '共通語彙基盤 コア語彙 2（バージョン2.3.1）',
 				'namespace' => 'http://imi.ipa.go.jp/ns/core/2',
 				'url' => 'http://imi.ipa.go.jp/ns/core/2',
 				'accept' => 'application/xml',
@@ -86,6 +86,13 @@ $config = array(
 				'url' => 'http://schema.org/docs/schema_org_rdfa.html',
 				'accept' => 'text/html',
 				'extension' => 'html'
+			),
+			'park' => array(
+				'name' => '公園語彙',
+				'namespace' => 'http://openpark.jp/ns/park#',
+				'url' => 'http://openpark.jp/ns/park.ttl',
+				'accept' => 'text/turtle',
+				'extension' => 'ttl'
 			)
 		),
 		'show_row_num' => 5,

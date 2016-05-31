@@ -102,7 +102,7 @@ $app->group('/api', function () use ($app) {
 				foreach ($children->complexType as $value) {
 					$results[] = $vocabulary . ':' . (string)$value->attributes()->name;
 				}
-			}elseif($prefix['extension'] == 'rdf' || $prefix['extension'] == 'html'){
+			}elseif($prefix['extension'] == 'rdf' || $prefix['extension'] == 'html' || $prefix['extension'] == 'ttl' ){
 				$graph = new EasyRdf_Graph();
 				$graph->parseFile($filePath);
 				$rdfPhp = $graph->toRdfPhp();

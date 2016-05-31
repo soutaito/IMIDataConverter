@@ -379,6 +379,7 @@ class RDFConverter extends XMLConverter{
 		$this->definitionType = $this->project['eg:definitionType'];
 		$property = $this->project['eg:property'];
 		if(is_array($property) && $property !== array()){
+			$namespaces = array();
 			foreach($property as $key => $value){
 				if(!empty($value['eg:additional'])){
 					foreach($value['eg:additional'] as $a){
@@ -394,6 +395,13 @@ class RDFConverter extends XMLConverter{
 					}
 				}elseif(!empty($value["eg:targetType"])){
 					$this->property[convertURI($value['eg:predicate'])] = $value;
+					$namespaces[] = explode(':',$value['eg:predicate'])[0];
+				}
+			}
+			$prefix = $this->app->config('prefix');
+			foreach($namespaces as $n){
+				if(array_key_exists($n, $prefix)){
+					EasyRdf_Namespace::set($n, $prefix[$n]['namespace']);
 				}
 			}
 			EasyRdf_Namespace::set('ic', 'http://imi.ipa.go.jp/ns/core/2/');
