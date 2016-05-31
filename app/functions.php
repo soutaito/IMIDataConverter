@@ -99,21 +99,39 @@ function getChildElementByComplexTypeName($complexTypeName, $vocabulary, $prefix
 				$temp['element'] = array_merge($temp['element'],$extensionChildElements['element']);
 			}
 		}
-		if ( ! empty( $value->complexContent ) ) {
-			foreach ( (object) $value->complexContent->extension->sequence->element as $element ) {
-				$ref                       = (string) $element->attributes()->ref;
-				$type = null;
-				foreach ( $propertyElements as $propertyElement ) {
-					$name = str_replace($vocabulary . ":", '', $ref);
-					if((string) $propertyElement->attributes()->name == $name){
-						$type = (string) $propertyElement->attributes()->type;
-						break;
-					}
+		if ( ! empty( $value->complexContent ) && isset($value->complexContent->extension->sequence->group)) {
+			$groupRef = str_replace('ic:', '', $value->complexContent->extension->sequence->group->attributes()->ref);
+			$elements = null;
+			foreach ( $children->group as $group ) {
+				if ( (string) $group->attributes()->name === $groupRef ) {
+					$elements = $group->sequence->element;
+					break;
 				}
-				$temp['element'][] = array(
-					'name' => $ref,
-					'type' => $type
-				);
+			}
+			if(is_object($elements)){
+				foreach ( (object) $elements as $element ) {
+					$ref                       = (string) $element->attributes()->ref;
+					$type = null;
+					foreach ( $propertyElements as $propertyElement ) {
+						$name = str_replace($vocabulary . ":", '', $ref);
+						if((string) $propertyElement->attributes()->name == $name){
+							$type = (string) $propertyElement->attributes()->type;
+							break;
+						}
+					}
+					if(strpos($type, '単純型')){
+						foreach ( $children->simpleType as $simpleType ) {
+							if ( (string) $simpleType->attributes()->name === str_replace('ic:', '', $type) ) {
+								$type = (string) $simpleType->restriction->attributes()->base;
+								break;
+							}
+						}
+					}
+					$temp['element'][] = array(
+						'name' => $ref,
+						'type' => $type
+					);
+				}
 			}
 		} elseif ( ! empty( $value->simpleContent ) ) {
 			foreach ( (object) $value->simpleContent->extension->attribute as $attribute ) {
