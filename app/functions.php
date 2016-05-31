@@ -537,60 +537,50 @@ function getSchema(){
 	$userOriginal = array();
 	$userOriginal = judgeOriginalRecursive($property, $namespaces, $userOriginal);
 	ob_start();
+	echo '<?xml version="1.0" encoding="utf-8"?>';
 	?>
-	<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-	            xmlns:dct="http://purl.org/dc/terms/"
-	            xmlns:ic="http://imi.ipa.go.jp/ns/core/2"
-	            targetNamespace="http://example.com/ns/example#"
-		>
-		<xsd:annotation>
-			<xsd:documentation xml:lang="ja"><?php echo  htmlspecialchars($project['rdfs:label']); ?></xsd:documentation>
-			<xsd:appinfo>
-				<dct:title><?php echo htmlspecialchars($project['rdfs:label']); ?></dct:title>
-				<dct:creator><?php echo htmlspecialchars($project['dct:creator']); ?></dct:creator>
-				<dct:license><?php echo $license; ?></dct:license>
-				<dct:created><?php echo $created; ?></dct:created>
-			</xsd:appinfo>
-		</xsd:annotation>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="http://example.org/imins/<?php echo $project['_id']; ?>"
+            xmlns:dct="http://purl.org/dc/terms/"
+            xmlns:ex="http://example.org/imins/<?php echo $project['_id']; ?>"
+            xmlns:ic="http://imi.ipa.go.jp/ns/core/2">
 
-		<xsd:element name="items" type="itemsType" />
+	<xsd:annotation>
+		<xsd:documentation xml:lang="ja"><?php echo  htmlspecialchars($project['rdfs:label']); ?></xsd:documentation>
+		<xsd:appinfo>
+			<dct:title><?php echo htmlspecialchars($project['rdfs:label']); ?></dct:title>
+			<dct:creator><?php echo htmlspecialchars($project['dct:creator']); ?></dct:creator>
+			<dct:license><?php echo $license; ?></dct:license>
+			<dct:created><?php echo $created; ?></dct:created>
+		</xsd:appinfo>
+	</xsd:annotation>
 
-		<xsd:complexType name="itemsType">
-			<xsd:sequence>
-				<xsd:element name="item" type="itemType" minOccurs="0" maxOccurs="unbounded" />
-			</xsd:sequence>
-		</xsd:complexType>
+	<xsd:complexType name="itemsType">
+		<xsd:sequence>
+			<xsd:element ref="ex:item" minOccurs="0" maxOccurs="unbounded" />
+		</xsd:sequence>
+	</xsd:complexType>
 
-		<xsd:complexType name="itemType">
-			<xsd:complexContent>
-				<xsd:extension base="<?php echo $project['eg:class']; ?>">
-					<xsd:sequence>
-						<?php if ($userOriginal): ?>
-							<xsd:element name="userOriginal" type="userOriginalType" />
-						<?php endif; ?>
-						<xsd:any minOccurs="0" maxOccurs="unbounded" namespace="##other" />
-					</xsd:sequence>
-				</xsd:extension>
-			</xsd:complexContent>
-		</xsd:complexType>
-		<?php
-		if ($userOriginal):
-			?>
-			<xsd:complexType name="userOriginalType">
+	<xsd:element name="item" type="ex:itemType" />
+
+	<xsd:complexType name="itemType">
+		<xsd:complexContent>
+			<xsd:extension base="<?php echo $project['eg:class']; ?>">
 				<xsd:sequence>
 					<?php
-					foreach($userOriginal as $idx => $value):
-						?>
-						<xsd:element name="<?php echo htmlspecialchars($value['eg:predicate']); ?>" type="<?php echo htmlspecialchars($value['eg:type']); ?>" minOccurs="0" maxOccurs="unbounded" />
-						<?php
-					endforeach;
+					if ($userOriginal):
+						foreach($userOriginal as $idx => $value):
+							?>
+							<xsd:element name="<?php echo htmlspecialchars($value['eg:predicate']); ?>" type="<?php echo htmlspecialchars($value['eg:type']); ?>" minOccurs="0" maxOccurs="unbounded" />
+							<?php
+						endforeach;
+					endif;
 					?>
 				</xsd:sequence>
-			</xsd:complexType>
-			<?php
-		endif;
-		?>
-	</xsd:schema>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+</xsd:schema>
 	<?php
 	$xsd = ob_get_contents();
 	ob_end_clean();
