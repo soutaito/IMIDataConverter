@@ -389,6 +389,9 @@ class RDFConverter extends XMLConverter{
 					foreach($value['eg:additional'] as $a){
 						if(!empty($a["eg:targetType"])){
 							$tree = explode('-', $a['eg:tree']);
+							foreach($tree as $t){
+								$namespaces[] = explode(':',$t)[0];
+							}
 							$nest_property = convertRdfPHP($tree, $a);
 							if($this->property == array()){
 								$this->property = $nest_property;
@@ -403,6 +406,7 @@ class RDFConverter extends XMLConverter{
 				}
 			}
 			$prefix = $this->app->config('prefix');
+			$namespaces = array_unique($namespaces);
 			foreach($namespaces as $n){
 				if(array_key_exists($n, $prefix)){
 					EasyRdf_Namespace::set($n, $prefix[$n]['namespace']);
