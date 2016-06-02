@@ -66,7 +66,7 @@
 					dataType: 'text',
 					data:{
 						project:self.project,
-						mapping:self.mapping,
+						mapping:JSON.stringify(self.mapping),
 						_token:token
 					}
 				}).fail(function(e){

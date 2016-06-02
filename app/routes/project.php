@@ -201,7 +201,7 @@ $app->group('/project', function () use ($app) {
 		if(
 			! (
 				isset($post['project']) && is_array($post['project'])
-				&& isset($post['mapping']) && is_array($post['mapping'])
+				&& isset($post['mapping']) && json_decode($post['mapping'])
 			)
 		){
 			$app->response()->setStatus(400);
@@ -210,6 +210,7 @@ $app->group('/project', function () use ($app) {
 			$app->response()->finalize();return;
 		}
 
+		$post['mapping'] = json_decode($post['mapping'], true);
 		foreach ($post['mapping'] as $key => $value) {
 			if (
 				isset($value['eg:APIComponent']) && $value['eg:APIComponent'] === 'external' &&
