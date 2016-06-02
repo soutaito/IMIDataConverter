@@ -292,9 +292,11 @@ class Array2xml
 			if ($key !== FALSE)
 			{
 				$this->writer->text(str_repeat($this->newTab, $tabs_count));
-
-				$this->writer->startElement($key);
-
+				try {
+					$this->writer->startElement($key);
+				} catch(Exception $e) {
+					continue;
+				}
 				if ($attrKey !== FALSE && isset($this->elementsAttrs[$attrKey]))
 				{
 					foreach ($this->elementsAttrs[$attrKey] as $elementAttrName => $elementAttrText)
