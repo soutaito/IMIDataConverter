@@ -240,12 +240,16 @@ class XMLConverter {
 					case 'row':
 						$index                          = $this->getIndex( $val['eg:targetCells'],
 							'r' );
-						$output[ $val["eg:predicate"] ] = $item[ $index ];
+						if(isset($item[$index])){
+							$output[ $val["eg:predicate"] ] = $item[ $index ];
+						}
 						break;
 					case 'column':
 						$index                          = $this->getIndex( $val['eg:targetCells'],
 							'c' );
-						$output[ $val["eg:predicate"] ] = $item[ $index ];
+						if(isset($item[$index])){
+							$output[ $val["eg:predicate"] ] = $item[ $index ];
+						}
 						break;
 					case 'constant':
 					case 'uri':
